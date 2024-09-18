@@ -7,20 +7,21 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.core.types.Expiration;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class RedisLock implements AutoCloseable{
 
-    private RedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
-    private String key;
+    private final String key;
 
     // 避免误删锁
-    private String value;
+    private final String value;
 
     // 单位 秒
-    private int expireTime;
+    private final int expireTime;
 
 
     public RedisLock(RedisTemplate redisTemplate, String key, int expireTime) {
@@ -76,11 +77,11 @@ public class RedisLock implements AutoCloseable{
 
         RedisScript<Boolean> redisScript = RedisScript.of(script, Boolean.class);
 
-        List<String> keys = Arrays.asList(key);
+        List<String> keys = Collections.singletonList(key);
 
         Boolean result = (Boolean) redisTemplate.execute(redisScript, keys, value);
 
-        return result;
+        return Boolean.TRUE.equals(result);
 
 
     }
